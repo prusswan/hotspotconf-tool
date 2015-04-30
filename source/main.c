@@ -77,12 +77,21 @@ int readfield(char *field, int maxlen, int decode)
 	return 0;
 }
 
+void print_hex(char *s)
+{
+  while(*s)
+    printf("%02x", (unsigned int) *s++);
+  printf(",");
+}
+
 int main(int argc, char **argv)
 {
 	int linenum = 0;
 	int retval;
 	int fieldindex;
+	int lastIndex;
 	int hotspot_index=0;
+	int loopIndex;
 	char field[0xac];
 
 	if(argc<2)
@@ -117,7 +126,7 @@ int main(int argc, char **argv)
 
 		if(linenum==2)
 		{
-			if(strcmp(line, "ServiceName,Url,Ssid,SecurityKey,SecurityMode,ApNum,IsBackground,IsBrowser,IsShop,IsGame,IsSetToFW,IsVendorIE"))
+			if(strcmp(line, "ServiceName,Url,Ssid,SecurityKey,SecurityMode,ApNum,IsBackground,IsBrowser,IsShop,IsGame,IsSetToFW,IsVendorIE,IsZone"))
 			{
 				printf("Invalid records, aborting...\n");
 				fclose(fconf);
@@ -128,13 +137,23 @@ int main(int argc, char **argv)
 
 		if(linenum>2)
 		{
-			fieldindex = 0;
+			fieldindex = 0; lastIndex = 13;
 			printf("Hotspot%d: ", hotspot_index);
-			while(fieldindex<12)
+			while(fieldindex<lastIndex)
 			{
 				if(fieldindex>=0 && fieldindex<4)
 				{
 					retval = readfield(field, 0xac, 1);
+					if (fieldindex==3 || fieldindex==2)
+					{
+						printf(" key length: %zd,", strlen(field));
+						loopIndex=0;
+						while(loopIndex < strlen(field)) {
+				        printf("%02x|", *(field+loopIndex));
+				        loopIndex++;
+				    }
+
+					}
 				}
 				else
 				{
@@ -147,8 +166,8 @@ int main(int argc, char **argv)
 				}
 				if(retval==1)break;
 
-				if(fieldindex<11)printf("%s, ", field);
-				if(fieldindex==11)printf("%s ", field);
+				if(fieldindex<(lastIndex-1))printf("%s, ", field);
+				if(fieldindex==(lastIndex-1))printf("%s ", field);
 				fieldindex++;
 			}
 

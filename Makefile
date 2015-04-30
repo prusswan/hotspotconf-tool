@@ -64,7 +64,8 @@ CFLAGS	+=	$(INCLUDE)
 CXXFLAGS	:= $(CFLAGS)
 
 ASFLAGS	:=	-g
-LDFLAGS	=	-g -Wl
+LDFLAGS	=	-g
+# LDFLAGS	=	-g -Wl
 
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project (order is important)
